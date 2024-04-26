@@ -77,13 +77,11 @@ def predict_outcomes(df, background_df=None, model_path="model.joblib"):
     # Preprocess the fake / holdout data
     df = clean_df(df, background_df)
 
-    # get unique variables used by model
-    variables = model.tree_.feature
-    variables_used = [df.columns[i] for i in variables if i != -2]
-    variables_used = list(set(variables_used))
-    #remove the index as variable
+    # Exclude the variable nomem_encr
+    vars_without_id = df.columns[df.columns != 'nomem_encr']
+
     # Generate predictions from model, should be 0 (no child) or 1 (had child)
-    predictions = model.predict(df[variables_used])
+    predictions = model.predict(df[vars_without_id])
 
     # Output file should be DataFrame with two columns, nomem_encr and predictions
     df_predict = pd.DataFrame(
