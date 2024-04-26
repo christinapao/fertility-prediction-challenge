@@ -17,9 +17,14 @@ run.py can be used to test your submission.
 
 # List your libraries and modules here. Don't forget to update environment.yml!
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+from sklearn import tree, linear_model
 import joblib
 
+train_og = pd.read_csv(r"C:\Users\liric\Downloads\SOC555A2\PreFer_train_data.csv", low_memory = False)
+outcome_og = pd.read_csv(r"C:\Users\liric\Downloads\SOC555A2\PreFer_train_outcome.csv")
+train = train_og[train_og['outcome_available'] == 1]
+
+outcome = outcome_og.dropna()
 
 def clean_df(df, background_df=None):
     """
@@ -33,23 +38,12 @@ def clean_df(df, background_df=None):
     Returns:
     pd.DataFrame: The cleaned dataframe with only the necessary columns and processed variables.
     """
-
-    ## This script contains a bare minimum working example
-    # Create new variable with age
-    df["age"] = 2024 - df["birthyear_bg"]
-
-    # Imputing missing values in age with the mean
-    df["age"] = df["age"].fillna(df["age"].mean())
-
-    # Selecting variables for modelling
-    keepcols = [
-        "nomem_encr",  # ID variable required for predictions,
-        "age"          # newly created variable
-    ] 
-
-    # Keeping data with variables selected
-    df = df[keepcols]
-
+    with open(r"column_names.txt") as file:
+        toKeep = [line.strip() for line in file]
+    # Keeping data with columns from training data that had over half of the entries filled
+    df = df[toKeep]
+    # drop all columns missing more thna half of data, fill empty entries by setting equal to last observed value (or next observed if no last observed)
+    df = df.bfill(axis = 1).ffill(axis = 1)
     return df
 
 
@@ -84,7 +78,7 @@ def predict_outcomes(df, background_df=None, model_path="model.joblib"):
     # Preprocess the fake / holdout data
     df = clean_df(df, background_df)
 
-    # Exclude the variable nomem_encr if this variable is NOT in your model
+    # Exclude the variable nomem_encr
     vars_without_id = df.columns[df.columns != 'nomem_encr']
 
     # Generate predictions from model, should be 0 (no child) or 1 (had child)
