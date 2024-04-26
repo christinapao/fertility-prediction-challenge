@@ -20,11 +20,11 @@ import pandas as pd
 from sklearn import tree, linear_model
 import joblib
 
-train_og = pd.read_csv(r"C:\Users\liric\Downloads\SOC555A2\PreFer_train_data.csv", low_memory = False)
-outcome_og = pd.read_csv(r"C:\Users\liric\Downloads\SOC555A2\PreFer_train_outcome.csv")
-train = train_og[train_og['outcome_available'] == 1]
+#train_og = pd.read_csv(r"C:\Users\liric\Downloads\SOC555A2\PreFer_train_data.csv", low_memory = False)
+#outcome_og = pd.read_csv(r"C:\Users\liric\Downloads\SOC555A2\PreFer_train_outcome.csv")
+#train = train_og[train_og['outcome_available'] == 1]
 
-outcome = outcome_og.dropna()
+#outcome = outcome_og.dropna()
 
 def clean_df(df, background_df=None):
     """
@@ -42,7 +42,7 @@ def clean_df(df, background_df=None):
         toKeep = [line.strip() for line in file]
     # Keeping data with columns from training data that had over half of the entries filled
     df = df[toKeep]
-    # drop all columns missing more thna half of data, fill empty entries by setting equal to last observed value (or next observed if no last observed)
+    # fill empty entries by setting equal to last observed value (or next observed if no last observed)
     df = df.bfill(axis = 1).ffill(axis = 1)
     return df
 
